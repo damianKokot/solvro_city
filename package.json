@@ -1,7 +1,7 @@
 {
   "name": "solvro_city",
   "author": "Damian Kokot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node App to the solvro backend competition",
   "main": "server.js",
   "scripts": {
@@ -10,7 +10,9 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "cookie-parser": "^1.4.3",
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "request": "^2.88.0",
+    "debug": "^2.6.9"
   },
   "engines": {
     "node": "8.x"
