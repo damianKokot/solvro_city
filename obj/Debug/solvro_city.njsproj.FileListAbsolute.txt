@@ -1,0 +1,3 @@
+C:\Users\kokoc\source\repos\solvro_city\obj\Debug\solvro_city.njsprojAssemblyReference.cache
+C:\Users\kokoc\source\repos\solvro_city\obj\Debug\solvro_city.njsproj.CoreCompileInputs.cache
+C:\Users\kokoc\source\repos\solvro_city\bin\Microsoft.NodejsTools.WebRole.dll
