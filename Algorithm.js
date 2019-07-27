@@ -4,18 +4,24 @@
 var data;
 var graph;
 
+/** Funkcja do wyznaczania trasy pomiędzy dwoma punktami
+ * @param {Id} Id przystanku startowego
+ * @param {Id} Id przystanku końcowego
+ */
 function getRoute(sourceId, targetId) {
-    //Przygotowywuje dwie tablice, jedna z minimalnymi odległościami od środka,
-    //a druga z oznaczeniem czy dany wierzchołek był już odwiedzony
-    var distanceFromSource = prepareDistanceFromSourceTable(sourceId);
+    //Odległość od przystanku startowego
+    var distanceFromSource = prepareDistanceFromSourceTable(sourceId);  
+    //Wiadomość o tym czy dany wierzchołek został już przetworzony
     var readyNode = (new Array(data.nodes.length)).fill(false);
-      
+
+    //Inicjalizacja kolejki priorytetowej      
     var queue = new Queue.priorityQueue();
     queue.compare = function (a, b) {
         return distanceFromSource[a].distance < distanceFromSource[b].distance;
     }
     queue.push(sourceId);
-    
+
+    //Algorytm Dijkstry
     while (!queue.empty()) {
         var node = queue.pop();
         readyNode[node] = true;
@@ -32,6 +38,7 @@ function getRoute(sourceId, targetId) {
         });
     }
 
+    //Generowanie odpowiedzi
     var response = {
         stops: [],
         distance: distanceFromSource[targetId].dist
@@ -59,13 +66,17 @@ function getRoute(sourceId, targetId) {
     response.stops = stops;
     return response;
 }
-//Znajduje odpowiadającą nazwę przystanku i pobiera jego ID
+/**Liniowo przeszukuje listę przystanków i zwraca id przystanku o podanej nazwie
+ * @param {any} Nazwa przystanku
+ */
 function getStopId(name) {
-    return data.nodes.filter((item) => {
-        return item.stop_name == name;
-    })[0].id;
+    for (let item in data.nodes) {
+        if (item.stop_name == name)
+            return item.id;
+    }
+    return undefined;
 }
-//Generuje graf połączeń
+/**Generuje graf z listy przystanków*/
 function generateGraph() {
     graph = [];
     while (graph.length < data.nodes.length) {
@@ -83,7 +94,7 @@ function generateGraph() {
 
     });
 }
-//Przygotowywuje tablicę odległości od punktu wejściowego
+/**rzygotowywuje tablicę odległości od punktu wejściowego*/
 function prepareDistanceFromSourceTable(sourceId) {
     let table = new Array(data.nodes.length);
     for (let i = 0; i < table.length; ++i) {
@@ -99,8 +110,26 @@ function prepareDistanceFromSourceTable(sourceId) {
     return table;
 }
 
+/**Przetwarza request użytkownika
+ * @param {any} Nazwa przystanku startowego
+ * @param {any} Nazwa przystanku końcowego
+ */
 function getResponse(sourceName, targetName) {
-    return getRoute(getStopId(sourceName), getStopId(targetName));
+    var sourceId = getStopId(sourceName);
+    var targetId = getStopId(targetName);
+    if (typeof (sourceId) !== number) {
+        return {
+            err: "Nie znaleziono przystanku o podanej nazwie",
+            source: sourceName
+        }
+    }
+    if (typeof (targetId) !== number) {
+        return {
+            err: "Nie znaleziono przystanku o podanej nazwie",
+            target: targetName
+        }
+    }
+    return getRoute(sourceId, targetId);
 }
 
 module.exports = {
@@ -111,10 +140,5 @@ module.exports = {
     setData: function (Data) {
         data = Data;
         generateGraph();
-    },
-    getGraph: function () {
-        return graph;
-    },
-    prepareTable: prepareDistanceFromSourceTable
+    }
 };
-

@@ -1,18 +1,19 @@
 ﻿var express = require('express');
-var bodyParser = require('body-parser');
 var request = require('request');
 var algorithm = require('./Algorithm');
 var app = express();
 
+//Zwraca listę przystanków
 app.get("/stops", (req, res) => {
     var stops = algorithm.getData().nodes.map((stop) => {
-        var proceedStop = {};
-        proceedStop.name = stop.stop_name;
-        return proceedStop;
+        var readyStop = {};
+        readyStop.name = stop.stop_name;
+        return readyStop;
     });
 
     res.json(stops);
 });
+//Zwraca trasę pomiędzy dwoma przystankami
 app.get("/path", (req, res) => {
     res.json(algorithm.GetResponse(req.query.source, req.query.target));
 });
@@ -32,6 +33,7 @@ app.listen(process.env.PORT, () => {
 
         data = body;
     });
+    //Niestety w niektórych przypadkach Pobieranie danych nie działa. Wtedy trzeba wkleić dane poniżej
     if (!data) {
         data = {
             "directed": false,
