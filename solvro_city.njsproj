@@ -34,6 +34,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app.js" />
+    <Compile Include="PriorityQueue.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Content Include="package.json" />
     <Content Include="README.md" />
   </ItemGroup>
