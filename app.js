@@ -1,7 +1,55 @@
 ﻿var express = require('express');
+var bodyParser = require('body-parser');
 var request = require('request');
 var algorithm = require('./Algorithm');
+
 var app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+//This will be changed as soon as i`ll do database
+let database = [
+    {
+        login: "damKoko",
+        password: "password"
+    }
+];
+
+//Do login
+app.post("/login", (req, res) => {
+    let index = database.findIndex((value) => {
+        return value.login === req.body.login && value.password === req.body.password;
+    });
+    if (index !== -1) {
+        res.send("Welcome " + database[index].login);
+    } else {
+        res.send("Wrong login or password");
+    }
+});
+//Do register 
+app.post("/register", (req, res) => {
+    let _login = req.body.login;
+    let _password = req.body.password;
+
+    //Looking if data is undefinied
+    if (!_login || !_password) {
+        res.send("Something is wrong with data");
+    }
+    //Looking for existing user
+    let index = database.findIndex((value) => {
+        return value.login === _login;
+    });
+    if (index !== -1) {
+        res.send("Login is reserved by another user");
+    } else {
+        database.push({
+            login: _login,
+            password: _password
+        });
+        res.send("You have registered succesfully");
+    }
+});
 
 //Zwraca listę przystanków
 app.get("/stops", (req, res) => {
