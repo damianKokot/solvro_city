@@ -1,8 +1,8 @@
-﻿var Queue = require('./PriorityQueue')
+﻿const Queue = require('./PriorityQueue')
 
 //Wartości pobrane z JSON
-var data;
-var graph;
+let data;
+let graph;
 
 /** Funkcja do wyznaczania trasy pomiędzy dwoma punktami
  * @param {Id} Id przystanku startowego
@@ -10,12 +10,12 @@ var graph;
  */
 function getRoute(sourceId, targetId) {
     //Odległość od przystanku startowego
-    var distanceFromSource = prepareDistanceFromSourceTable(sourceId);  
+    const distanceFromSource = prepareDistanceFromSourceTable(sourceId);  
     //Wiadomość o tym czy dany wierzchołek został już przetworzony
-    var readyNode = (new Array(data.nodes.length)).fill(false);
+    const readyNode = (new Array(data.nodes.length)).fill(false);
 
     //Inicjalizacja kolejki priorytetowej      
-    var queue = new Queue.priorityQueue();
+    const queue = new Queue.priorityQueue();
     queue.compare = function (a, b) {
         return distanceFromSource[a].distance < distanceFromSource[b].distance;
     }
@@ -23,11 +23,11 @@ function getRoute(sourceId, targetId) {
 
     //Algorytm Dijkstry
     while (!queue.empty()) {
-        var node = queue.pop();
+        const node = queue.pop();
         readyNode[node] = true;
         
         graph[node].forEach(link => {
-            let newDistance = distanceFromSource[node].dist + link.distance;
+            const newDistance = distanceFromSource[node].dist + link.distance;
             if (distanceFromSource[link.to].dist > newDistance) {
                 distanceFromSource[link.to].dist = newDistance;
                 distanceFromSource[link.to].last = node;
@@ -39,13 +39,13 @@ function getRoute(sourceId, targetId) {
     }
 
     //Generowanie odpowiedzi
-    var response = {
+    const response = {
         stops: [],
         distance: distanceFromSource[targetId].dist
     };
 
-    var nodeId = targetId;
-    var stops = [
+    const nodeId = targetId;
+    const stops = [
         {
             name: targetId
         }
@@ -70,7 +70,7 @@ function getRoute(sourceId, targetId) {
  * @param {any} Nazwa przystanku
  */
 function getStopId(name) {
-    for (let item in data.nodes) {
+    for (let item of data.nodes) {
         if (item.stop_name == name)
             return item.id;
     }
@@ -85,8 +85,8 @@ function generateGraph() {
 
 
     data.links.forEach(connection => {
-        let from = connection.source;
-        let extender = {
+        const from = connection.source;
+        const extender = {
             to: connection.target,
             distance: connection.distance
         };
@@ -96,7 +96,7 @@ function generateGraph() {
 }
 /**rzygotowywuje tablicę odległości od punktu wejściowego*/
 function prepareDistanceFromSourceTable(sourceId) {
-    let table = new Array(data.nodes.length);
+    const table = new Array(data.nodes.length);
     for (let i = 0; i < table.length; ++i) {
         table[i] = {
             dist: Number.MAX_SAFE_INTEGER,
@@ -115,9 +115,9 @@ function prepareDistanceFromSourceTable(sourceId) {
  * @param {any} Nazwa przystanku końcowego
  */
 function getResponse(sourceName, targetName) {
-    var sourceId = getStopId(sourceName);
-    var targetId = getStopId(targetName);
-    if (typeof (sourceId) !== number) {
+    const sourceId = getStopId(sourceName);
+    const targetId = getStopId(targetName);
+    if (typeof (sourceId) !== "number") {
         return {
             err: "Nie znaleziono przystanku o podanej nazwie",
             source: sourceName
