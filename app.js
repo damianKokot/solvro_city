@@ -1,84 +1,66 @@
 ﻿const express = require('express');
 const bodyParser = require('body-parser');
-const request = require('request');
+const confirmation = require('./src/Confirmation');
 const algorithm = require('./src/Algorithm');
+const initialise = require('./src/Initialise');
 
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-//This will be changed as soon as i`ll do database
-const database = [
-    {
-        login: "damKoko",
-        password: "password"
+//Using this route you can recreate database
+app.get("/setup", (req, res) => {
+    try {
+        const url = req.body.url;
+        initialise.setData(url)
+            .then(() => res.json({
+                note: "Data downloaded correctly"
+            }))
+            .catch(err => {
+                res.json(err);
+            })
+    } catch (err) {
+        console.log(err);
     }
-];
-
+});
 //Do login
 app.post("/login", (req, res) => {
-    const index = database.findIndex((value) => {
-        return value.login === req.body.login && value.password === req.body.password;
-    });
-    if (index !== -1) {
-        res.send("Welcome " + database[index].login);
-    } else {
-        res.send("Wrong login or password");
-    }
+    const _login = req.body.login;
+    const _password = req.body.password;
+
+    confirmation.login(_login, _password)
+        .then(() => res.json({ note: "Congratulations! You are logged in" }))
+        .catch (err => res.json(err));
 });
 //Do register 
 app.post("/register", (req, res) => {
     const _login = req.body.login;
     const _password = req.body.password;
 
-    //Looking if data is undefinied
-    if (!_login || !_password) {
-        res.send("Something is wrong with data");
-    }
-    //Looking for existing user
-    const index = database.findIndex((value) => {
-        return value.login === _login;
-    });
-    if (index !== -1) {
-        res.send("Login is reserved by another user");
-    } else {
-        database.push({
-            login: _login,
-            password: _password
-        });
-        res.send("You have registered succesfully");
-    }
+    confirmation.register(_login, _password)
+        .then(() => res.json({ note: "Congratulations! You are registered!" }))
+        .catch(err => res.json(err));
 });
 
-//Zwraca listę przystanków
+
+//Returns list of stops
 app.get("/stops", (req, res) => {
-    const stops = algorithm.getData().nodes.map((stop) => {
-        const readyStop = {};
-        readyStop.name = stop.stop_name;
-        return readyStop;
-    });
-
-    res.json(stops);
+    algorithm
+        .GetListOfStops()
+        .then(data => res.json(data));
 });
-//Zwraca trasę pomiędzy dwoma przystankami
+//Getting path between two points
 app.get("/path", (req, res) => {
-    res.json(algorithm.GetResponse(req.query.source, req.query.target));
-});
+    const _source = req.query.source;
+    const _target = req.query.target;
+    algorithm.GetResponse(_source, _target)
+        .then(response => res.json(response))
 
+});
 
 const port = process.env.PORT || 3000;
 app.listen(process.env.PORT, () => {
     //Starting server
     console.log('Server has started on port ' + port);
-    
-    //Downloading data
-    const jsonUrl = 'https://raw.githubusercontent.com/Solvro/rekrutacja/master/backend/solvro_city.json';
-    request(jsonUrl, { json: true }, (err, res, body) => {
-        if (err) {
-            return console.log(err)
-        };
-        algorithm.setData(body);
-    });
-
 });

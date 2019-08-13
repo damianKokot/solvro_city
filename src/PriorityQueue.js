@@ -1,5 +1,5 @@
 ﻿class priorityQueue{
-    constructor(){
+    constructor(compareTable){
         this.data = new Array(1);
         this.length = 0;
     }
@@ -83,7 +83,7 @@
         while (index <= this.length) {
             let swapIndex = this.minSon(index);
 
-            if (this.compare(this.data[swapIndex], this.data[index])) {
+            if (swapIndex !== null && this.compare(this.data[swapIndex], this.data[index])) {
                 this.swap(index, swapIndex);
             } else {
                 break;
